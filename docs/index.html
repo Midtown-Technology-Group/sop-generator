@@ -1,0 +1,192 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SOP Generator | IT Documentation from Screenshots</title>
+    <link rel="stylesheet" href="styles.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+</head>
+<body>
+    <header class="hero">
+        <div class="container">
+            <div class="logo">
+                <svg width="80" height="80" viewBox="0 0 80 80" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <rect x="8" y="20" width="64" height="48" rx="6" stroke="currentColor" stroke-width="4"/>
+                    <line x1="20" y1="36" x2="60" y2="36" stroke="currentColor" stroke-width="3" stroke-linecap="round"/>
+                    <line x1="20" y1="48" x2="48" y2="48" stroke="currentColor" stroke-width="3" stroke-linecap="round"/>
+                    <circle cx="62" cy="54" r="10" fill="currentColor"/>
+                    <path d="M58 54L61 57L66 51" stroke="#0f172a" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                </svg>
+            </div>
+            <h1>SOP Generator</h1>
+            <p class="tagline">Screenshots to documentation, automatically</p>
+            <p class="description">Watch your Greenshot folder and auto-generate step-by-step IT documentation. Perfect for MSPs building client runbooks and internal KB articles.</p>
+            <div class="cta-buttons">
+                <a href="https://github.com/Midtown-Technology-Group/sop-generator" class="btn btn-primary">View on GitHub</a>
+                <a href="#install" class="btn btn-secondary">Get Started</a>
+            </div>
+        </div>
+    </header>
+
+    <main>
+        <section class="features">
+            <div class="container">
+                <h2>How It Works</h2>
+                <div class="feature-grid">
+                    <div class="feature">
+                        <div class="feature-icon">📸</div>
+                        <h3>1. Capture</h3>
+                        <p>Work through your process, hitting Greenshot hotkeys at each step. Region, window, or full-screen captures all work.</p>
+                    </div>
+                    <div class="feature">
+                        <div class="feature-icon">⏱️</div>
+                        <h3>2. Pause</h3>
+                        <p>Stop for 5 seconds. The watcher detects idle time and prompts you for a documentation title.</p>
+                    </div>
+                    <div class="feature">
+                        <div class="feature-icon">📝</div>
+                        <h3>3. Generate</h3>
+                        <p>Markdown SOP auto-generated with numbered steps, image references, and placeholder captions.</p>
+                    </div>
+                    <div class="feature">
+                        <div class="feature-icon">📋</div>
+                        <h3>4. Paste</h3>
+                        <p>Content auto-copied to clipboard. Paste directly into Halo, ITGlue, or your PSA of choice.</p>
+                    </div>
+                    <div class="feature">
+                        <div class="feature-icon">🤖</div>
+                        <h3>AI Captions (Planned)</h3>
+                        <p>Azure OpenAI Vision integration coming soon. Auto-generate step descriptions from screenshots.</p>
+                    </div>
+                    <div class="feature">
+                        <div class="feature-icon">⚡</div>
+                        <h3>Lightning Fast</h3>
+                        <p>No cloud upload delays. Local processing with Ditto clipboard history for the win.</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section class="install" id="install">
+            <div class="container">
+                <h2>Installation</h2>
+                <div class="install-methods">
+                    <div class="install-method">
+                        <h3>Quick Start</h3>
+                        <div class="code-block">
+                            <code># Clone the repository
+git clone https://github.com/Midtown-Technology-Group/sop-generator.git
+cd sop-generator
+
+# Install Python dependencies
+pip install requests
+
+# Configure Greenshot path in sop_generator.py
+# Then run:
+python sop_generator.py --watch</code>
+                        </div>
+                    </div>
+                    <div class="install-method">
+                        <h3>Windows (Easy Mode)</h3>
+                        <div class="code-block">
+                            <code># Double-click to start watching
+double-click start_watch.bat
+
+# Or use PowerShell
+.\Start-SOPGenerator.ps1 -Watch
+
+# First run: edit the CONFIG section
+# Set your Greenshot folder path</code>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section class="usage">
+            <div class="container">
+                <h2>Example Workflow</h2>
+                <div class="code-example">
+                    <div class="code-header">Generated Markdown</div>
+                    <div class="code-block">
+                        <code># How to Reset Office 365 Password
+
+**Created:** 2025-01-15 14:32
+**Screenshots:** 5
+
+---
+
+## Step 1
+
+**Action:** [TODO: Navigate to Azure AD admin center]
+
+![Step 1](./assets/step_01_2025-01-15_14-30-22.png)
+
+---
+
+## Step 2
+
+**Action:** [TODO: Click 'Users' in left navigation]
+
+![Step 2](./assets/step_02_2025-01-15_14-30-45.png)
+
+---
+
+## Step 3
+
+**Action:** [TODO: Select user and click 'Reset password']
+
+![Step 3](./assets/step_03_2025-01-15_14-31-10.png)</code>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section class="psa-integration">
+            <div class="container">
+                <h2>PSA Integration</h2>
+                <div class="psa-grid">
+                    <div class="psa-card">
+                        <h3>Halo</h3>
+                        <p>Markdown pastes directly into KB articles. Drag images from <code>assets/</code> folder or use Halo's image upload.</p>
+                    </div>
+                    <div class="psa-card">
+                        <h3>ITGlue</h3>
+                        <p>Paste text content, then drag images individually into the rich text editor. Or convert to HTML first.</p>
+                    </div>
+                    <div class="psa-card">
+                        <h3>ConnectWise</h3>
+                        <p>Same workflow - Markdown export compatible with most documentation systems.</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section class="tech-stack">
+            <div class="container">
+                <h2>Built With</h2>
+                <div class="stack-list">
+                    <a href="https://python.org" class="stack-item">Python 3.8+</a>
+                    <a href="https://getgreenshot.org/" class="stack-item">Greenshot</a>
+                    <a href="https://ditto-cp.sourceforge.io/" class="stack-item">Ditto</a>
+                    <span class="stack-item coming-soon">Azure OpenAI (soon)</span>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <footer>
+        <div class="container">
+            <p>Built by <a href="https://midtowntg.com">Midtown Technology Group</a></p>
+            <p>Open source under AGPL-3.0</p>
+            <div class="footer-links">
+                <a href="https://github.com/Midtown-Technology-Group/sop-generator">GitHub</a>
+                <a href="https://github.com/Midtown-Technology-Group/sop-generator/issues">Issues</a>
+                <a href="https://github.com/Midtown-Technology-Group/sop-generator/blob/main/LICENSE">License</a>
+            </div>
+        </div>
+    </footer>
+</body>
+</html>
