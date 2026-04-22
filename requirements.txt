@@ -1,0 +1,6 @@
+# requirements.txt for SOP Generator
+# Install with: pip install -r requirements.txt
+
+requests>=2.28.0
+watchdog>=3.0.0  # Optional: for more robust file watching
+pillow>=9.0.0    # Optional: for image processing/thumbnails

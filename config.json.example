@@ -1,0 +1,14 @@
+# SOP Generator - Configuration File
+# Copy this to config.json and customize for your setup
+
+{
+  "greenshot_folder": "C:/Users/YOURNAME/Pictures/Greenshot",
+  "output_folder": "C:/Users/YOURNAME/Documents/SOPs",
+  "idle_timeout": 5,
+  "filename_pattern": "*.png",
+  
+  "use_llm": true,
+  "llm_provider": "ollama",
+  "ollama_model": "llava",
+  "ollama_url": "http://localhost:11434"
+}
