@@ -1,10 +1,25 @@
 """
 SOP Generator - Watches Greenshot folder and auto-generates step-by-step documentation
 
+Copyright (C) 2026 Midtown Technology Group LLC
+
+This program is free software: you can redistribute it and/or modify
+it under the terms of the GNU Affero General Public License as published by
+the Free Software Foundation, either version 3 of the License, or
+(at your option) any later version.
+
+This program is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU Affero General Public License for more details.
+
+You should have received a copy of the GNU Affero General Public License
+along with this program.  If not, see <https://www.gnu.org/licenses/>.
+
 Usage:
     python sop_generator.py --watch                    # Watch mode (continuous)
     python sop_generator.py --process-existing          # Process all existing screenshots
-    python python sop_generator.py --caption "image.png" # Generate caption for single image
+    python sop_generator.py --caption "image.png"       # Generate caption for single image
 """
 
 import os
