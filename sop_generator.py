@@ -211,7 +211,7 @@ Be concise (under 15 words)."""
         """Copy text to clipboard for immediate paste."""
         try:
             # Windows
-            subprocess.run(["clip"], input=text.encode(), check=True, shell=True)
+            subprocess.run(["clip"], input=text.encode(), check=True, shell=False)
             print("📋 Content copied to clipboard - ready to paste into Halo/ITGlue!")
         except Exception:
             pass
