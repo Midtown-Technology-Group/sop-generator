@@ -12,64 +12,58 @@ Email: **security@midtowntg.com**
 
 ## Security Considerations
 
-### Screenshot Processing
+### Local Capture Processing
 
-This tool processes local screenshot files:
-- **Input**: PNG/JPG files from `~/Pictures/Screenshots/`
-- **Processing**: OCR via Azure AI Vision API
-- **Output**: Markdown SOPs in `~/Documents/SOPs/`
+This tool records browser workflow metadata through a local browser extension and companion service:
+- **Input**: Browser navigation, clicks, form-change markers, submits, and optional screenshot uploads to the local API.
+- **Storage**: Raw capture sessions, drafts, screenshots, and exports remain under `%LOCALAPPDATA%\MTG\SOPGenerator`.
+- **Output**: Halo KB-ready HTML and Bifrost publish requests after operator review.
 
-### Azure AI Vision Security
+### Local Data Boundary
 
-- API calls use HTTPS/TLS 1.2+
-- Images are transmitted to Azure for OCR processing
-- Microsoft does not store or train on your images ([Azure AI Vision privacy](https://azure.microsoft.com/services/cognitive-services/computer-vision/))
-- API key stored in environment variable or config file
+- The companion service binds to `127.0.0.1` by default.
+- Raw capture data is machine-local working data and should not be synced or uploaded until reviewed.
+- The extension does not send raw form field values; it records `value_hint: "changed"` for form-change events.
+- Review screenshots and generated HTML before publishing because screenshots may show customer or credential context.
 
 ### Configuration Security
 
-Config file at `~/.config/sop-generator/config.yaml`:
-```yaml
-azure:
-  api_key: "${AZURE_VISION_KEY}"  # Use env var, don't hardcode
-  endpoint: "https://your-resource.cognitiveservices.azure.com"
-```
+The default style file is created at `%LOCALAPPDATA%\MTG\SOPGenerator\house-style.md`.
 
 **Never commit API keys to git.**
 
-### Clipboard Handling
+### Publishing Security
 
-- Uses Windows `clip.exe` command via subprocess
-- Input text is sanitized before clipboard copy
-- No `shell=True` (secure subprocess usage)
+- Publishing goes through Bifrost. Do not put Halo credentials in the browser extension.
+- Configure Bifrost with `BIFROST_URL` and, when needed, `BIFROST_TOKEN`.
+- Keep tokens in environment variables or an approved secret store, not in tracked files.
 
 ### Output Security
 
 Generated SOPs may contain:
 - System configurations
-- Internal network details
+- Internal portal details
 - Sensitive UI elements
 
 **Review before sharing externally.**
 
 ## Least Privilege
 
-Recommended Azure permissions:
-- **Cognitive Services User** role only
-- Single resource: Computer Vision
-- No access to other Azure resources
+Recommended integration boundaries:
+- Browser extension talks only to the localhost companion API.
+- Bifrost owns Halo API credentials and article publishing.
+- Local captures stay on the workstation until the operator exports or publishes reviewed content.
 
 ## Input Validation
 
-- Screenshot paths validated as existing files
-- No shell expansion of user input
-- Image format validation (PNG, JPG only)
-- File size limits enforced
+- Session IDs are contained under the configured local session directory.
+- Screenshot uploads validate base64 input and write under the session screenshots directory.
+- Bifrost publish responses are validated before the CLI reports success.
 
 ## Development
 
 When contributing:
 1. Never commit API keys
 2. Use environment variables for secrets
-3. Test with dummy images, not production screenshots
+3. Test with dummy screenshots or local fake payloads, not production customer captures
 4. Validate all file paths

@@ -1,6 +1,12 @@
-# requirements.txt for SOP Generator
-# Install with: pip install -r requirements.txt
+# Compatibility requirements for environments that do not install from pyproject.toml.
+# Preferred development install:
+#   python -m pip install -e .[dev]
 
-requests>=2.28.0
-watchdog>=3.0.0  # Optional: for more robust file watching
-pillow>=9.0.0    # Optional: for image processing/thumbnails
+fastapi>=0.111
+httpx>=0.27
+pydantic>=2.7
+requests>=2.31
+typer>=0.12
+uvicorn[standard]>=0.30
+watchdog>=4.0
+pillow>=10.0

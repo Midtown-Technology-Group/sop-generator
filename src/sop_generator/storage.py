@@ -22,6 +22,8 @@ class SessionStore:
         return self.write_session(session)
 
     def session_dir(self, session_id: str) -> Path:
+        if "/" in session_id or "\\" in session_id:
+            raise ValueError(f"Unsafe session ID: {session_id!r}")
         root = self.paths.sessions.resolve()
         candidate = (root / session_id).resolve()
         if not _is_relative_to(candidate, root):
