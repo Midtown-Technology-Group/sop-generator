@@ -41,9 +41,9 @@ function eventPayload(event) {
   };
 }
 
-async function appendEvent(event) {
+async function appendEvent(event, options = {}) {
   const state = await getState();
-  if (!state.recording || state.paused || !state.sessionId) {
+  if (!state.recording || (!options.ignorePaused && state.paused) || !state.sessionId) {
     return { ok: false, skipped: true };
   }
 
@@ -79,18 +79,17 @@ async function startSession(title) {
 }
 
 async function pauseSession() {
-  await appendEvent({ type: "pause", note: "Recording paused" }).catch(() => null);
+  await appendEvent({ type: "pause", note: "Recording paused" });
   return saveState({ paused: true });
 }
 
 async function resumeSession() {
-  const state = await saveState({ paused: false });
-  await appendEvent({ type: "resume", note: "Recording resumed" }).catch(() => null);
-  return state;
+  await appendEvent({ type: "resume", note: "Recording resumed" }, { ignorePaused: true });
+  return saveState({ paused: false });
 }
 
 async function stopSession() {
-  await appendEvent({ type: "stop", note: "Recording stopped" }).catch(() => null);
+  await appendEvent({ type: "stop", note: "Recording stopped" }, { ignorePaused: true });
   return saveState({
     sessionId: null,
     recording: false,
@@ -142,5 +141,5 @@ chrome.tabs.onUpdated.addListener((_tabId, changeInfo, tab) => {
     url: tab.url,
     title: tab.title || null,
     label: tab.title || tab.url,
-  }).catch(() => null);
+  }).catch((error) => console.warn("SOP navigation capture failed", error));
 });
