@@ -24,11 +24,7 @@ class SopPaths:
 
     @classmethod
     def default(cls) -> "SopPaths":
-        base = (
-            Path(os.environ["LOCALAPPDATA"])
-            if "LOCALAPPDATA" in os.environ
-            else Path.home() / ".local" / "share"
-        )
+        base = Path(os.environ.get("LOCALAPPDATA") or Path.home() / ".local" / "share")
         root = base / "MTG" / "SOPGenerator"
         return cls(
             root=root,

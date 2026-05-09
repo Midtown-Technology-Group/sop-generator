@@ -22,6 +22,15 @@ def test_default_paths_fall_back_to_local_share(monkeypatch, tmp_path):
     assert paths.house_style == paths.root / "house-style.md"
 
 
+def test_default_paths_fall_back_when_local_appdata_is_empty(monkeypatch, tmp_path):
+    monkeypatch.setenv("LOCALAPPDATA", "")
+    monkeypatch.setattr("pathlib.Path.home", lambda: tmp_path)
+    paths = SopPaths.default()
+    assert paths.root == tmp_path / ".local" / "share" / "MTG" / "SOPGenerator"
+    assert paths.sessions == paths.root / "sessions"
+    assert paths.house_style == paths.root / "house-style.md"
+
+
 def test_ensure_creates_sessions_directory_and_returns_self(monkeypatch, tmp_path):
     monkeypatch.setenv("LOCALAPPDATA", str(tmp_path))
     paths = SopPaths.default()
