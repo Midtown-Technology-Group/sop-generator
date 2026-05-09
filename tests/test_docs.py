@@ -39,6 +39,15 @@ def test_launcher_stops_when_init_style_fails():
     assert "exit $LASTEXITCODE" in launcher
 
 
+def test_legacy_batch_launcher_uses_companion_service():
+    launcher = (ROOT / "start_watch.bat").read_text(encoding="utf-8")
+    assert "--watch" not in launcher
+    assert "python sop_generator.py" not in launcher
+    assert "python -m sop_generator init-style" in launcher
+    assert "python -m sop_generator serve" in launcher
+    assert "ERRORLEVEL" in launcher
+
+
 def test_static_docs_describe_browser_first_workflow():
     static_docs = (ROOT / "docs" / "index.html").read_text(encoding="utf-8")
     assert "--watch" not in static_docs
