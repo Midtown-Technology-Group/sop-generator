@@ -1,8 +1,11 @@
+from pathlib import Path
+
 import typer
 import uvicorn
 
 from sop_generator.drafting import draft_sop
 from sop_generator.paths import SopPaths
+from sop_generator.render_halo import render_halo_html
 from sop_generator.service import create_app
 from sop_generator.storage import SessionStore
 
@@ -40,6 +43,35 @@ def draft(session_id: str) -> None:
     draft = draft_sop(session.title, store.read_events(session_id), store.paths.house_style)
     path = store.write_draft(session_id, draft)
     typer.echo(str(path))
+
+
+def _abort(message: str) -> None:
+    typer.echo(message, err=True)
+    raise typer.Exit(1)
+
+
+@app.command()
+def export(session_id: str, output: Path | None = None) -> None:
+    """Render a reviewed draft as Halo-ready HTML."""
+    store = SessionStore(SopPaths.default())
+    try:
+        store.read_session(session_id)
+    except FileNotFoundError:
+        _abort(f"Session not found: {session_id}")
+    except ValueError:
+        _abort(f"Invalid session id: {session_id}")
+
+    try:
+        reviewed_draft = store.read_draft(session_id)
+    except FileNotFoundError:
+        _abort(f"Draft not found for session: {session_id}")
+    except ValueError:
+        _abort(f"Invalid draft for session: {session_id}")
+
+    output_path = output or store.session_dir(session_id) / "halo-export.html"
+    output_path.parent.mkdir(parents=True, exist_ok=True)
+    output_path.write_text(render_halo_html(reviewed_draft), encoding="utf-8")
+    typer.echo(str(output_path))
 
 
 def main() -> None:
