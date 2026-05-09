@@ -30,8 +30,37 @@ Load `extension/browser` as an unpacked extension in Edge or Chrome:
 1. Keep `python -m sop_generator serve --host 127.0.0.1 --port 8765` running.
 2. Use the extension popup to start a capture session.
 3. Work through the procedure in the normal browser profile.
-4. Capture notes or screenshots where they clarify the SOP.
-5. Stop the session and review the generated draft.
-6. Export Halo KB-ready HTML or publish the reviewed payload through Bifrost.
+4. Let the extension capture clicks, navigation, form changes with value hints, and form submits.
+5. Stop the session and note the session id.
+
+## Draft, Review, Export, Publish
+
+Create the local draft:
+
+```powershell
+python -m sop_generator draft <session-id>
+```
+
+Perform manual review of the generated draft before continuing. The current tool writes drafts and HTML, but it does not enforce approval in code before publish.
+
+Export Halo KB-ready HTML:
+
+```powershell
+python -m sop_generator export <session-id>
+```
+
+Publish through Bifrost with environment variables:
+
+```powershell
+$env:BIFROST_URL = "https://bifrost.example"
+$env:BIFROST_TOKEN = "<token>"
+python -m sop_generator publish <session-id>
+```
+
+Or publish with flags:
+
+```powershell
+python -m sop_generator publish <session-id> --bifrost-url https://bifrost.example --token <token>
+```
 
 Raw capture data stays under `%LOCALAPPDATA%\MTG\SOPGenerator` on the local workstation. The extension captures browser workflow context for the local companion; it does not store direct Halo credentials.

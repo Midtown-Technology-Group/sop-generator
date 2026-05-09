@@ -13,7 +13,7 @@ The raw capture boundary is local by design. Browser events, screenshots, drafts
 5. Review the generated draft and Halo KB-ready HTML.
 6. Publish the reviewed payload through Bifrost.
 
-The browser extension captures meaningful clicks, navigation, form submits, operator notes, and screenshots. It is intentionally thin: it sends capture data to the local companion and does not hold Halo credentials or call vendor APIs directly.
+The browser extension captures meaningful clicks, navigation, form changes with value hints, and form submits. It does not provide operator note or screenshot controls in the current UI. The companion service has screenshot storage APIs for future capture paths, but the extension does not currently expose a screenshot button or automatic screenshot flow.
 
 The Python companion owns local session storage, draft generation, Halo KB-ready HTML rendering, and publish requests. Publishing goes through Bifrost so Halo authentication, retries, category mapping, and article creation stay in the integration layer instead of the extension.
 
@@ -49,10 +49,35 @@ Capture sessions are stored below `%LOCALAPPDATA%\MTG\SOPGenerator`:
 ```text
 %LOCALAPPDATA%\MTG\SOPGenerator\
   sessions\
-  style\
+  house-style.md
 ```
 
 This directory can contain screenshots and browser context from real customer workflows. Treat it as machine-local working data and review before publishing or sharing any exported HTML.
+
+## Draft, Export, And Publish
+
+After recording, use the session id returned by the extension or companion API:
+
+```powershell
+python -m sop_generator draft <session-id>
+python -m sop_generator export <session-id>
+```
+
+The `draft` command writes a local draft from captured events. The `export` command renders the current draft as Halo KB-ready HTML. Perform manual review before publishing; the current CLI expects the operator to review the draft or exported HTML first, but publish does not enforce an approval gate in code.
+
+Publish through Bifrost with environment variables:
+
+```powershell
+$env:BIFROST_URL = "https://bifrost.example"
+$env:BIFROST_TOKEN = "<token>"
+python -m sop_generator publish <session-id>
+```
+
+Or pass the values as flags:
+
+```powershell
+python -m sop_generator publish <session-id> --bifrost-url https://bifrost.example --token <token>
+```
 
 ## Publishing
 
