@@ -1,132 +1,66 @@
-# Quick Start Guide
+# Quick Start
 
-## 5-Minute Setup
+## Install And Start
 
-### 1. Install Python Dependencies
-```bash
-cd sop_generator
-pip install requests
-```
+Run these commands from the repository root:
 
-### 2. Configure Greenshot
-Open Greenshot → Preferences → Output:
-- Set "Storage location" to something like `C:\Users\You\Pictures\Greenshot`
-- Enable "Copy file path to clipboard" (optional but helpful)
-- Filename pattern: `${capturetime:d"yyyy-MM-dd_HH-mm-ss"}` or default
-
-### 3. Configure SOP Generator
-Edit `sop_generator.py` and update:
-```python
-"greenshot_folder": Path("C:/Users/YourName/Pictures/Greenshot"),  # <- Your path
-"output_folder": Path("C:/Users/YourName/Documents/SOPs"),         # <- Where you want docs
-```
-
-### 4. AI Captions (Not Required - Placeholders for Now)
-
-**Current behavior:** Step descriptions are manual placeholders like `[TODO: Describe this step]`
-
-**Future:** Azure OpenAI Service (GPT-4 Vision) integration planned
-
-**Optional local workaround:**
 ```powershell
-# Windows with winget - for local Ollama fallback only
-winget install Ollama.Ollama
-ollama pull llava
-# Then set use_llm: True in sop_generator.py CONFIG
+python -m pip install -e .[dev]
+python -m sop_generator init-style
+python -m sop_generator serve --host 127.0.0.1 --port 8765
 ```
 
-### 5. Run It
-Double-click `start_watch.bat` or run:
-```bash
-python sop_generator.py --watch
+You can also start the local companion with:
+
+```powershell
+.\Start-SOPGenerator.ps1
 ```
 
-## Your First SOP
+## Load The Browser Extension
 
-1. **Start the script** → You'll see "Watching: C:\Users\...\Greenshot"
-2. **Do your process** → Hit Greenshot hotkey (default: `PrtScn`) at each step
-   - Step 1: Open settings → Screenshot
-   - Step 2: Click option → Screenshot
-   - Step 3: Enter value → Screenshot
-3. **Pause** → Wait 5 seconds after your last screenshot
-4. **Enter title** → Script prompts: `Enter SOP title: `
-5. **Paste into Halo/ITGlue** → Content is already in your clipboard!
+Load `extension/browser` as an unpacked extension in Edge or Chrome:
 
-## File Structure After Running
+1. Open `edge://extensions` or `chrome://extensions`.
+2. Turn on developer mode.
+3. Select "Load unpacked".
+4. Choose the `extension/browser` folder from this repo.
 
-```
-C:\Users\You\Documents\SOPs\
-├── SOP_How_to_Reset_Password_2025-01-14_14-32-15.md
-└── assets\
-    ├── step_01_2025-01-14_14-30-22.png
-    ├── step_02_2025-01-14_14-30-45.png
-    └── step_03_2025-01-14_14-31-10.png
-```
+## Record A Browser Workflow
 
-## Advanced: Making It Even Faster
+1. Keep `python -m sop_generator serve --host 127.0.0.1 --port 8765` running.
+2. Use the extension popup to start a capture session.
+3. Work through the procedure in the normal browser profile.
+4. Let the extension capture clicks, navigation, form changes with value hints, and form submits.
+5. Stop the session and note the session id.
 
-### Auto-start with Windows
-1. Press `Win+R` → type `shell:startup`
-2. Create shortcut to `start_watch.bat`
+## Draft, Review, Export, Publish
 
-### Pin to Taskbar
-1. Right-click `start_watch.bat` → Create shortcut
-2. Right-click shortcut → Properties → Change icon
-3. Pin to taskbar for one-click launch
+Create the local draft:
 
-### Keyboard Shortcut
-Create an AutoHotkey script (`sop_hotkey.ahk`):
-```autohotkey
-#s::  ; Win+S to toggle SOP generator
-Run, C:\Path\To\sop_generator\start_watch.bat
-return
+```powershell
+python -m sop_generator draft <session-id>
 ```
 
-## Troubleshooting
+Perform manual review of the generated draft before continuing. The current tool writes drafts and HTML, but it does not enforce approval in code before publish.
 
-**"No module named 'requests'"**
-```bash
-pip install requests
+Export Halo KB-ready HTML:
+
+```powershell
+python -m sop_generator export <session-id>
 ```
 
-**"Greenshot folder not found"**
-- Double-check path in config (use forward slashes: `C:/Users/...`)
-- Ensure folder exists and Greenshot is saving there
+Publish through Bifrost with environment variables:
 
-**"Ollama connection error"**
-- Ensure Ollama is running in background (system tray icon)
-- Or disable LLM: `--no-llm` flag
-
-**Script doesn't detect screenshots**
-- Check that `filename_pattern` matches your Greenshot output (usually `*.png`)
-- Try running with `--process-existing` to test file detection
-
-## Tips for Halo/ITGlue Integration
-
-### Halo PSA
-1. Generate SOP (clipboard auto-copied)
-2. In Halo: New KB Article
-3. Paste (Ctrl+V) - Markdown renders automatically
-4. For images: Drag from `assets/` folder or use Halo's image upload
-
-### ITGlue
-1. Generate SOP
-2. ITGlue's editor is HTML-based
-3. Either:
-   - Option A: Paste text, then drag images individually
-   - Option B: Use an online Markdown-to-HTML converter first
-   - Option C: Upload to a wiki that ITGlue can iframe/embed
-
-### Pro Tip: Base64 Embedding
-If you want single-file portability (image data embedded in the Markdown):
-
-```bash
-# Add this flag (requires updating script)
-python sop_generator.py --watch --embed-images
+```powershell
+$env:BIFROST_URL = "https://bifrost.example"
+$env:BIFROST_TOKEN = "<token>"
+python -m sop_generator publish <session-id>
 ```
 
-This makes the `.md` file completely self-contained but much larger.
+Or publish with flags:
 
----
+```powershell
+python -m sop_generator publish <session-id> --bifrost-url https://bifrost.example --token <token>
+```
 
-**Questions?** The script is just a starting point - customize it for your specific PSA workflow!
+Raw capture data stays under `%LOCALAPPDATA%\MTG\SOPGenerator` on the local workstation. The extension captures browser workflow context for the local companion; it does not store direct Halo credentials.

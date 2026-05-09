@@ -1,35 +1,14 @@
-# SOP Generator - PowerShell Alternative
-# For Windows users who prefer PowerShell over CMD
-
 param(
-    [switch]$Watch,
-    [switch]$ProcessExisting,
-    [switch]$NoLLM,
-    [string]$Caption
+    [string]$HostName = "127.0.0.1",
+    [int]$Port = 8765
 )
 
-$scriptPath = Split-Path -Parent $MyInvocation.MyCommand.Path
-Set-Location $scriptPath
-
-$arguments = @()
-
-if ($Watch) {
-    $arguments += "--watch"
-}
-elseif ($ProcessExisting) {
-    $arguments += "--process-existing"
-}
-elseif ($Caption) {
-    $arguments += "--caption"
-    $arguments += $Caption
-}
-else {
-    $arguments += "--watch"
+python -m sop_generator init-style
+if ($LASTEXITCODE -ne 0) {
+    exit $LASTEXITCODE
 }
 
-if ($NoLLM) {
-    $arguments += "--no-llm"
+python -m sop_generator serve --host $HostName --port $Port
+if ($LASTEXITCODE -ne 0) {
+    exit $LASTEXITCODE
 }
-
-Write-Host "Starting SOP Generator..." -ForegroundColor Green
-& python sop_generator.py $arguments

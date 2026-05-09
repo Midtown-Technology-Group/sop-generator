@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>SOP Generator | IT Documentation from Screenshots</title>
+    <title>SOP Generator | Browser Workflow Capture</title>
     <link rel="stylesheet" href="styles.css">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
@@ -21,8 +21,8 @@
                 </svg>
             </div>
             <h1>SOP Generator</h1>
-            <p class="tagline">Screenshots to documentation, automatically</p>
-            <p class="description">Watch your Greenshot folder and auto-generate step-by-step IT documentation. Perfect for MSPs building client runbooks and internal KB articles.</p>
+            <p class="tagline">Local browser workflow capture for Halo KB drafts</p>
+            <p class="description">Record human-led browser workflows with an unpacked extension, keep raw capture machine-local, draft Halo KB-ready HTML, and publish reviewed content through Bifrost.</p>
             <div class="cta-buttons">
                 <a href="https://github.com/Midtown-Technology-Group/sop-generator" class="btn btn-primary">View on GitHub</a>
                 <a href="#install" class="btn btn-secondary">Get Started</a>
@@ -36,34 +36,34 @@
                 <h2>How It Works</h2>
                 <div class="feature-grid">
                     <div class="feature">
-                        <div class="feature-icon">📸</div>
-                        <h3>1. Capture</h3>
-                        <p>Work through your process, hitting Greenshot hotkeys at each step. Region, window, or full-screen captures all work.</p>
+                        <div class="feature-icon">1</div>
+                        <h3>Run Companion</h3>
+                        <p>Start the Python companion service on localhost. It owns local session storage, drafting, HTML export, and Bifrost publish requests.</p>
                     </div>
                     <div class="feature">
-                        <div class="feature-icon">⏱️</div>
-                        <h3>2. Pause</h3>
-                        <p>Stop for 5 seconds. The watcher detects idle time and prompts you for a documentation title.</p>
+                        <div class="feature-icon">2</div>
+                        <h3>Load Extension</h3>
+                        <p>Load <code>extension/browser</code> as an unpacked extension in Edge or Chrome so the technician can record in their normal browser profile.</p>
                     </div>
                     <div class="feature">
-                        <div class="feature-icon">📝</div>
-                        <h3>3. Generate</h3>
-                        <p>Markdown SOP auto-generated with numbered steps, image references, and placeholder captions.</p>
+                        <div class="feature-icon">3</div>
+                        <h3>Capture Events</h3>
+                        <p>The extension captures meaningful clicks, navigation, form changes with value hints, and form submits while a session is explicitly running.</p>
                     </div>
                     <div class="feature">
-                        <div class="feature-icon">📋</div>
-                        <h3>4. Paste</h3>
-                        <p>Content auto-copied to clipboard. Paste directly into Halo, ITGlue, or your PSA of choice.</p>
+                        <div class="feature-icon">4</div>
+                        <h3>Draft SOP</h3>
+                        <p>Generate a local draft from captured browser events and the machine-local house style file.</p>
                     </div>
                     <div class="feature">
-                        <div class="feature-icon">🤖</div>
-                        <h3>AI Captions (Planned)</h3>
-                        <p>Azure OpenAI Vision integration coming soon. Auto-generate step descriptions from screenshots.</p>
+                        <div class="feature-icon">5</div>
+                        <h3>Review HTML</h3>
+                        <p>Export Halo KB-ready HTML and manually review it before publishing. Approval is an operator step, not an enforced code gate yet.</p>
                     </div>
                     <div class="feature">
-                        <div class="feature-icon">⚡</div>
-                        <h3>Lightning Fast</h3>
-                        <p>No cloud upload delays. Local processing with Ditto clipboard history for the win.</p>
+                        <div class="feature-icon">6</div>
+                        <h3>Publish</h3>
+                        <p>Send reviewed HTML to Bifrost for Halo KB publishing. The browser extension never stores direct Halo credentials.</p>
                     </div>
                 </div>
             </div>
@@ -74,31 +74,26 @@
                 <h2>Installation</h2>
                 <div class="install-methods">
                     <div class="install-method">
-                        <h3>Quick Start</h3>
+                        <h3>Python Companion</h3>
                         <div class="code-block">
                             <code># Clone the repository
 git clone https://github.com/Midtown-Technology-Group/sop-generator.git
 cd sop-generator
 
-# Install Python dependencies
-pip install requests
-
-# Configure Greenshot path in sop_generator.py
-# Then run:
-python sop_generator.py --watch</code>
+# Install and start the local companion
+python -m pip install -e .[dev]
+python -m sop_generator init-style
+python -m sop_generator serve --host 127.0.0.1 --port 8765</code>
                         </div>
                     </div>
                     <div class="install-method">
-                        <h3>Windows (Easy Mode)</h3>
+                        <h3>Windows Launcher</h3>
                         <div class="code-block">
-                            <code># Double-click to start watching
-double-click start_watch.bat
+                            <code># Default localhost companion
+.\Start-SOPGenerator.ps1
 
-# Or use PowerShell
-.\Start-SOPGenerator.ps1 -Watch
-
-# First run: edit the CONFIG section
-# Set your Greenshot folder path</code>
+# Optional host and port
+.\Start-SOPGenerator.ps1 -HostName 127.0.0.1 -Port 8765</code>
                         </div>
                     </div>
                 </div>
@@ -107,38 +102,24 @@ double-click start_watch.bat
 
         <section class="usage">
             <div class="container">
-                <h2>Example Workflow</h2>
+                <h2>Browser Setup And SOP Commands</h2>
                 <div class="code-example">
-                    <div class="code-header">Generated Markdown</div>
+                    <div class="code-header">Operator Flow</div>
                     <div class="code-block">
-                        <code># How to Reset Office 365 Password
+                        <code># Load extension/browser as an unpacked extension in Edge or Chrome.
+# Start and stop a capture session from the extension popup.
+# Then use the session id with the companion CLI:
 
-**Created:** 2025-01-15 14:32
-**Screenshots:** 5
+python -m sop_generator draft &lt;session-id&gt;
+python -m sop_generator export &lt;session-id&gt;
 
----
+# Review the draft or exported HTML before publishing.
+$env:BIFROST_URL = "https://bifrost.example"
+$env:BIFROST_TOKEN = "&lt;token&gt;"
+python -m sop_generator publish &lt;session-id&gt;
 
-## Step 1
-
-**Action:** [TODO: Navigate to Azure AD admin center]
-
-![Step 1](./assets/step_01_2025-01-15_14-30-22.png)
-
----
-
-## Step 2
-
-**Action:** [TODO: Click 'Users' in left navigation]
-
-![Step 2](./assets/step_02_2025-01-15_14-30-45.png)
-
----
-
-## Step 3
-
-**Action:** [TODO: Select user and click 'Reset password']
-
-![Step 3](./assets/step_03_2025-01-15_14-31-10.png)</code>
+# Or publish with flags:
+python -m sop_generator publish &lt;session-id&gt; --bifrost-url https://bifrost.example --token &lt;token&gt;</code>
                     </div>
                 </div>
             </div>
@@ -146,19 +127,19 @@ double-click start_watch.bat
 
         <section class="psa-integration">
             <div class="container">
-                <h2>PSA Integration</h2>
+                <h2>Local Storage And Publishing</h2>
                 <div class="psa-grid">
                     <div class="psa-card">
-                        <h3>Halo</h3>
-                        <p>Markdown pastes directly into KB articles. Drag images from <code>assets/</code> folder or use Halo's image upload.</p>
+                        <h3>Machine-Local Capture</h3>
+                        <p>Raw sessions, drafts, exports, and <code>house-style.md</code> stay under <code>%LOCALAPPDATA%\MTG\SOPGenerator</code> unless an operator exports or publishes reviewed content.</p>
                     </div>
                     <div class="psa-card">
-                        <h3>ITGlue</h3>
-                        <p>Paste text content, then drag images individually into the rich text editor. Or convert to HTML first.</p>
+                        <h3>Halo KB</h3>
+                        <p>The companion renders reviewed drafts as Halo KB-ready HTML so the article body is shaped before publishing.</p>
                     </div>
                     <div class="psa-card">
-                        <h3>ConnectWise</h3>
-                        <p>Same workflow - Markdown export compatible with most documentation systems.</p>
+                        <h3>Bifrost</h3>
+                        <p>Bifrost owns Halo authentication, article creation, image handling, retries, and returned publish status.</p>
                     </div>
                 </div>
             </div>
@@ -168,10 +149,11 @@ double-click start_watch.bat
             <div class="container">
                 <h2>Built With</h2>
                 <div class="stack-list">
-                    <a href="https://python.org" class="stack-item">Python 3.8+</a>
-                    <a href="https://getgreenshot.org/" class="stack-item">Greenshot</a>
-                    <a href="https://ditto-cp.sourceforge.io/" class="stack-item">Ditto</a>
-                    <span class="stack-item coming-soon">Azure OpenAI (soon)</span>
+                    <a href="https://python.org" class="stack-item">Python 3.10+</a>
+                    <span class="stack-item">FastAPI</span>
+                    <span class="stack-item">Typer CLI</span>
+                    <span class="stack-item">Manifest V3 Extension</span>
+                    <span class="stack-item">Bifrost Publisher</span>
                 </div>
             </div>
         </section>
