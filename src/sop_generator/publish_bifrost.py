@@ -1,6 +1,11 @@
 import httpx
+from pydantic import ValidationError
 
 from .models import PublishResult
+
+
+class PublishError(Exception):
+    """Raised when Bifrost returns a 2xx response that is not a successful publish."""
 
 
 class BifrostPublisher:
@@ -25,4 +30,12 @@ class BifrostPublisher:
             headers=headers,
         )
         response.raise_for_status()
-        return PublishResult.model_validate(response.json())
+        try:
+            result = PublishResult.model_validate(response.json())
+        except (ValueError, ValidationError) as exc:
+            raise PublishError("Invalid publish response from Bifrost.") from exc
+
+        if not result.ok:
+            raise PublishError(result.message or "Bifrost reported publish failure.")
+
+        return result

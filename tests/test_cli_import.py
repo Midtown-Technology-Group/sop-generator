@@ -164,3 +164,33 @@ def test_cli_publish_posts_rendered_draft(monkeypatch, tmp_path):
     assert result.exit_code == 0, result.output
     assert "Published Halo KB article 123" in result.output
     assert requests[0].url == "https://bifrost.test/api/sop/halo/publish"
+
+
+def test_cli_publish_reports_bifrost_publish_failure(monkeypatch, tmp_path):
+    monkeypatch.setenv("LOCALAPPDATA", str(tmp_path))
+    monkeypatch.setenv("BIFROST_URL", "https://bifrost.test")
+    store = SessionStore(SopPaths.default())
+    session = store.create_session("Reset MFA")
+    store.write_draft(
+        session.id,
+        DraftSop(
+            title="Reset MFA",
+            summary="Use the portal.",
+            steps=[SopStep(order=1, action="Click Reset MFA")],
+        ),
+    )
+
+    def handler(request):
+        return httpx.Response(200, json={"ok": False, "message": "Halo publish failed"})
+
+    real_client = httpx.Client
+
+    monkeypatch.setattr(
+        "sop_generator.cli.httpx.Client",
+        lambda: real_client(transport=httpx.MockTransport(handler)),
+    )
+
+    result = CliRunner().invoke(app, ["publish", session.id])
+
+    assert result.exit_code != 0
+    assert "Publish failed: Halo publish failed" in result.output

@@ -7,7 +7,7 @@ import uvicorn
 
 from sop_generator.drafting import draft_sop
 from sop_generator.paths import SopPaths
-from sop_generator.publish_bifrost import BifrostPublisher
+from sop_generator.publish_bifrost import BifrostPublisher, PublishError
 from sop_generator.render_halo import render_halo_html
 from sop_generator.service import create_app
 from sop_generator.storage import SessionStore
@@ -108,6 +108,8 @@ def publish(session_id: str, bifrost_url: str | None = None, token: str | None =
     }
     try:
         result = publisher.publish_halo(payload)
+    except PublishError as exc:
+        _abort(f"Publish failed: {exc}")
     except httpx.HTTPError as exc:
         _abort(f"Publish failed: {exc}")
 
