@@ -1,6 +1,8 @@
 import typer
+import uvicorn
 
 from sop_generator.paths import SopPaths
+from sop_generator.service import create_app
 
 app = typer.Typer(help="SOP Generator: browser workflow capture and Halo KB publishing.")
 
@@ -13,7 +15,7 @@ def callback() -> None:
 @app.command()
 def serve(host: str = "127.0.0.1", port: int = 8765) -> None:
     """Run the local capture companion service."""
-    typer.echo(f"Serving on http://{host}:{port}")
+    uvicorn.run(create_app(), host=host, port=port)
 
 
 @app.command("init-style")
