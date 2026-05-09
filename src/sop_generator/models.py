@@ -2,7 +2,7 @@ from datetime import datetime, timezone
 from typing import Literal
 from uuid import uuid4
 
-from pydantic import BaseModel, Field
+from pydantic import AwareDatetime, BaseModel, Field
 
 EventType = Literal[
     "click",
@@ -25,13 +25,13 @@ class CaptureSession(BaseModel):
     id: str = Field(default_factory=lambda: uuid4().hex)
     title: str
     status: Literal["recording", "paused", "stopped"] = "recording"
-    created_at: datetime = Field(default_factory=utc_now)
-    updated_at: datetime = Field(default_factory=utc_now)
+    created_at: AwareDatetime = Field(default_factory=utc_now)
+    updated_at: AwareDatetime = Field(default_factory=utc_now)
 
 
 class CaptureEvent(BaseModel):
     type: EventType
-    timestamp: datetime = Field(default_factory=utc_now)
+    timestamp: AwareDatetime = Field(default_factory=utc_now)
     url: str | None = None
     title: str | None = None
     label: str | None = None
