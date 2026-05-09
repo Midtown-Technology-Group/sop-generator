@@ -31,7 +31,12 @@ def init_style() -> None:
 def draft(session_id: str) -> None:
     """Draft an SOP from captured events for a session."""
     store = SessionStore(SopPaths.default())
-    session = store.read_session(session_id)
+    try:
+        session = store.read_session(session_id)
+    except FileNotFoundError:
+        raise typer.BadParameter(f"Session not found: {session_id}") from None
+    except ValueError:
+        raise typer.BadParameter(f"Invalid session id: {session_id}") from None
     draft = draft_sop(session.title, store.read_events(session_id), store.paths.house_style)
     path = store.write_draft(session_id, draft)
     typer.echo(str(path))
