@@ -1,10 +1,11 @@
 [build-system]
-requires = ["setuptools>=68"]
+requires = ["setuptools>=68", "wheel"]
 build-backend = "setuptools.build_meta"
 
 [project]
 name = "mtg-sop-generator"
 version = "0.1.0"
+description = "Local browser workflow capture and Halo KB SOP publishing."
 requires-python = ">=3.10"
 dependencies = [
     "fastapi>=0.111",
