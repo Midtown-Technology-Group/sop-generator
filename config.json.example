@@ -1,14 +1,14 @@
-# SOP Generator - Configuration File
-# Copy this to config.json and customize for your setup
-
 {
-  "greenshot_folder": "C:/Users/YOURNAME/Pictures/Greenshot",
-  "output_folder": "C:/Users/YOURNAME/Documents/SOPs",
-  "idle_timeout": 5,
-  "filename_pattern": "*.png",
-  
-  "use_llm": true,
-  "llm_provider": "ollama",
-  "ollama_model": "llava",
-  "ollama_url": "http://localhost:11434"
+  "companion": {
+    "host": "127.0.0.1",
+    "port": 8765
+  },
+  "storage": {
+    "root": "%LOCALAPPDATA%/MTG/SOPGenerator",
+    "house_style": "%LOCALAPPDATA%/MTG/SOPGenerator/house-style.md"
+  },
+  "bifrost": {
+    "url_env": "BIFROST_URL",
+    "token_env": "BIFROST_TOKEN"
+  }
 }
