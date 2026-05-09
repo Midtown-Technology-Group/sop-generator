@@ -37,3 +37,21 @@ def test_launcher_stops_when_init_style_fails():
     launcher = (ROOT / "Start-SOPGenerator.ps1").read_text(encoding="utf-8")
     assert "if ($LASTEXITCODE -ne 0)" in launcher
     assert "exit $LASTEXITCODE" in launcher
+
+
+def test_static_docs_describe_browser_first_workflow():
+    static_docs = (ROOT / "docs" / "index.html").read_text(encoding="utf-8")
+    assert "--watch" not in static_docs
+    assert "start_watch.bat" not in static_docs
+    assert "-Watch" not in static_docs
+    assert "pip install requests" not in static_docs
+    assert "python sop_generator.py" not in static_docs
+    assert "extension/browser" in static_docs
+    assert "python -m sop_generator init-style" in static_docs
+    assert "python -m sop_generator serve" in static_docs
+    assert "python -m sop_generator draft" in static_docs
+    assert "python -m sop_generator export" in static_docs
+    assert "python -m sop_generator publish" in static_docs
+    assert "%LOCALAPPDATA%\\MTG\\SOPGenerator" in static_docs
+    assert "Halo KB" in static_docs
+    assert "Bifrost" in static_docs
