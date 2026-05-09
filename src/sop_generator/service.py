@@ -6,7 +6,8 @@ from fastapi import HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
 
-from .models import CaptureEvent, CaptureSession
+from .drafting import draft_sop
+from .models import CaptureEvent, CaptureSession, DraftSop
 from .paths import SopPaths
 from .storage import SessionStore
 
@@ -30,9 +31,9 @@ def create_app(paths: SopPaths | None = None) -> FastAPI:
     )
     store = SessionStore(paths or SopPaths.default())
 
-    def ensure_session_exists(session_id: str) -> None:
+    def ensure_session_exists(session_id: str) -> CaptureSession:
         try:
-            store.read_session(session_id)
+            return store.read_session(session_id)
         except FileNotFoundError as exc:
             raise HTTPException(status_code=404, detail="Session not found") from exc
         except ValueError as exc:
@@ -51,6 +52,14 @@ def create_app(paths: SopPaths | None = None) -> FastAPI:
         ensure_session_exists(session_id)
         store.append_event(session_id, event)
         return {"ok": True}
+
+    @app.post("/api/sessions/{session_id}/draft")
+    def draft_session(session_id: str) -> DraftSop:
+        session = ensure_session_exists(session_id)
+        events = store.read_events(session_id)
+        draft = draft_sop(session.title, events, store.paths.house_style)
+        store.write_draft(session_id, draft)
+        return draft
 
     @app.post("/api/sessions/{session_id}/screenshots")
     def upload_screenshot(
