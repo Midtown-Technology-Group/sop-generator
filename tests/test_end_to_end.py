@@ -23,23 +23,29 @@ def test_capture_draft_and_render_flow(tmp_path):
         f"/api/sessions/{session_id}/events",
         json={"type": "navigation", "title": "Admin Portal"},
     )
-    client.post(
-        f"/api/sessions/{session_id}/events",
-        json={"type": "click", "label": "Users"},
-    )
-    client.post(
+    screenshot_response = client.post(
         f"/api/sessions/{session_id}/screenshots",
         json={
             "filename": "one.png",
             "screenshot_base64": base64.b64encode(b"png").decode("ascii"),
         },
     )
+    screenshot_path = screenshot_response.json()["path"]
+    client.post(
+        f"/api/sessions/{session_id}/events",
+        json={"type": "click", "label": "Users", "screenshot_path": screenshot_path},
+    )
 
     draft = client.post(f"/api/sessions/{session_id}/draft").json()
     draft_model = DraftSop.model_validate(draft)
     html = render_halo_html(draft_model)
 
+    assert screenshot_response.status_code == 200
+    assert screenshot_path.endswith("one.png")
+    assert (tmp_path / "sessions" / session_id / "screenshots" / "one.png").read_bytes() == b"png"
     assert draft["title"] == "Reset MFA"
     assert draft["steps"][0]["action"] == "Open Admin Portal."
+    assert draft_model.steps[1].evidence == [screenshot_path]
     assert "Reset MFA" in html
     assert "Open Admin Portal." in html
+    assert screenshot_path in html
