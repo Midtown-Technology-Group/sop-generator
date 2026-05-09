@@ -1,5 +1,7 @@
 import base64
 
+import pytest
+
 from sop_generator.models import CaptureEvent
 from sop_generator.paths import SopPaths
 from sop_generator.storage import SessionStore
@@ -37,3 +39,24 @@ def test_write_screenshot_from_base64(tmp_path):
     path = store.write_screenshot(session.id, encoded, "capture.png")
     assert path.name == "capture.png"
     assert path.read_bytes() == b"png-bytes"
+
+
+@pytest.mark.parametrize("session_id", ["../escaped", "..\\escaped"])
+def test_append_event_rejects_session_id_path_traversal(tmp_path, session_id):
+    store = make_store(tmp_path)
+
+    with pytest.raises(ValueError):
+        store.append_event(session_id, CaptureEvent(type="navigation", url="https://portal.test"))
+
+    assert not (tmp_path / "escaped").exists()
+
+
+@pytest.mark.parametrize("session_id", ["../escaped", "..\\escaped"])
+def test_write_screenshot_rejects_session_id_path_traversal(tmp_path, session_id):
+    store = make_store(tmp_path)
+    encoded = base64.b64encode(b"png-bytes").decode("ascii")
+
+    with pytest.raises(ValueError):
+        store.write_screenshot(session_id, encoded, "capture.png")
+
+    assert not (tmp_path / "escaped").exists()

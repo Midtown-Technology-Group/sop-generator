@@ -5,6 +5,14 @@ from .models import CaptureEvent, CaptureSession, DraftSop
 from .paths import SopPaths
 
 
+def _is_relative_to(path: Path, root: Path) -> bool:
+    try:
+        path.relative_to(root)
+    except ValueError:
+        return False
+    return True
+
+
 class SessionStore:
     def __init__(self, paths: SopPaths):
         self.paths = paths.ensure()
@@ -14,7 +22,11 @@ class SessionStore:
         return self.write_session(session)
 
     def session_dir(self, session_id: str) -> Path:
-        return self.paths.sessions / session_id
+        root = self.paths.sessions.resolve()
+        candidate = (root / session_id).resolve()
+        if not _is_relative_to(candidate, root):
+            raise ValueError(f"Unsafe session ID: {session_id!r}")
+        return candidate
 
     def write_session(self, session: CaptureSession) -> CaptureSession:
         path = self.session_dir(session.id)
