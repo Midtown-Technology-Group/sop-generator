@@ -2,6 +2,7 @@ import subprocess
 import sys
 from pathlib import Path
 
+import httpx
 from typer.testing import CliRunner
 
 from sop_generator.cli import app
@@ -108,3 +109,58 @@ def test_cli_export_missing_draft_has_useful_message(tmp_path, monkeypatch):
 
     assert result.exit_code != 0
     assert f"Draft not found for session: {session.id}" in result.output
+
+
+def test_cli_publish_missing_bifrost_url_has_useful_message(tmp_path, monkeypatch):
+    monkeypatch.setenv("LOCALAPPDATA", str(tmp_path))
+    monkeypatch.delenv("BIFROST_URL", raising=False)
+    store = SessionStore(SopPaths.default())
+    session = store.create_session("Reset MFA")
+    store.write_draft(
+        session.id,
+        DraftSop(title="Reset MFA", summary="Use the portal.", steps=[SopStep(order=1, action="Open")]),
+    )
+
+    result = CliRunner().invoke(app, ["publish", session.id])
+
+    assert result.exit_code != 0
+    assert "Bifrost URL is required" in result.output
+
+
+def test_cli_publish_posts_rendered_draft(monkeypatch, tmp_path):
+    monkeypatch.setenv("LOCALAPPDATA", str(tmp_path))
+    monkeypatch.setenv("BIFROST_URL", "https://bifrost.test")
+    monkeypatch.setenv("BIFROST_TOKEN", "env-token")
+    store = SessionStore(SopPaths.default())
+    session = store.create_session("Reset MFA")
+    store.write_draft(
+        session.id,
+        DraftSop(
+            title="Reset MFA",
+            summary="Use the portal.",
+            steps=[SopStep(order=1, action="Click Reset MFA")],
+        ),
+    )
+    requests = []
+
+    def handler(request):
+        requests.append(request)
+        assert request.headers["authorization"] == "Bearer env-token"
+        payload = request.read().decode("utf-8")
+        assert '"title":"Reset MFA"' in payload
+        assert '"summary":"Use the portal."' in payload
+        assert "&lt;" not in payload
+        return httpx.Response(200, json={"ok": True, "kb_article_id": "123"})
+
+    real_client = httpx.Client
+
+    monkeypatch.setattr(
+        "sop_generator.cli.httpx.Client",
+        lambda: real_client(transport=httpx.MockTransport(handler)),
+    )
+
+    result = CliRunner().invoke(app, ["publish", session.id])
+
+    assert result.exit_code == 0, result.output
+    assert "Published Halo KB article 123" in result.output
+    assert requests[0].url == "https://bifrost.test/api/sop/halo/publish"

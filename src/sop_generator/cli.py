@@ -1,10 +1,13 @@
+import os
 from pathlib import Path
 
+import httpx
 import typer
 import uvicorn
 
 from sop_generator.drafting import draft_sop
 from sop_generator.paths import SopPaths
+from sop_generator.publish_bifrost import BifrostPublisher
 from sop_generator.render_halo import render_halo_html
 from sop_generator.service import create_app
 from sop_generator.storage import SessionStore
@@ -72,6 +75,48 @@ def export(session_id: str, output: Path | None = None) -> None:
     output_path.parent.mkdir(parents=True, exist_ok=True)
     output_path.write_text(render_halo_html(reviewed_draft), encoding="utf-8")
     typer.echo(str(output_path))
+
+
+@app.command()
+def publish(session_id: str, bifrost_url: str | None = None, token: str | None = None) -> None:
+    """Publish Halo-ready HTML through Bifrost."""
+    resolved_url = bifrost_url or os.environ.get("BIFROST_URL")
+    resolved_token = token or os.environ.get("BIFROST_TOKEN")
+    if not resolved_url:
+        _abort("Bifrost URL is required. Use --bifrost-url or set BIFROST_URL.")
+
+    store = SessionStore(SopPaths.default())
+    try:
+        store.read_session(session_id)
+    except FileNotFoundError:
+        _abort(f"Session not found: {session_id}")
+    except ValueError:
+        _abort(f"Invalid session id: {session_id}")
+
+    try:
+        reviewed_draft = store.read_draft(session_id)
+    except FileNotFoundError:
+        _abort(f"Draft not found for session: {session_id}")
+    except ValueError:
+        _abort(f"Invalid draft for session: {session_id}")
+
+    publisher = BifrostPublisher(resolved_url, token=resolved_token, client=httpx.Client())
+    payload = {
+        "title": reviewed_draft.title,
+        "summary": reviewed_draft.summary,
+        "html": render_halo_html(reviewed_draft),
+    }
+    try:
+        result = publisher.publish_halo(payload)
+    except httpx.HTTPError as exc:
+        _abort(f"Publish failed: {exc}")
+
+    if result.url:
+        typer.echo(f"Published Halo KB article: {result.url}")
+    elif result.kb_article_id:
+        typer.echo(f"Published Halo KB article {result.kb_article_id}")
+    else:
+        typer.echo(result.message or "Published Halo KB article.")
 
 
 def main() -> None:
