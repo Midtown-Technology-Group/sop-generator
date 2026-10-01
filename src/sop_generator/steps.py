@@ -2,7 +2,6 @@ from collections.abc import Iterable
 
 from .models import CaptureEvent, SopStep
 
-
 IGNORED_EVENT_TYPES = {"form_change", "pause", "resume"}
 
 
