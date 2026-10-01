@@ -63,17 +63,17 @@ def test_default_datetimes_are_utc_aware():
 
 def test_capture_event_rejects_naive_timestamp():
     with pytest.raises(ValidationError):
-        CaptureEvent(type="navigation", timestamp=datetime(2026, 5, 9, 12, 0, 0))
+        CaptureEvent(type="navigation", timestamp=datetime(2026, 5, 9, 12, 0, 0))  # noqa: DTZ001
 
 
 def test_capture_session_rejects_naive_created_at():
     with pytest.raises(ValidationError):
-        CaptureSession(title="New SOP", created_at=datetime(2026, 5, 9, 12, 0, 0))
+        CaptureSession(title="New SOP", created_at=datetime(2026, 5, 9, 12, 0, 0))  # noqa: DTZ001
 
 
 def test_capture_session_rejects_naive_updated_at():
     with pytest.raises(ValidationError):
-        CaptureSession(title="New SOP", updated_at=datetime(2026, 5, 9, 12, 0, 0))
+        CaptureSession(title="New SOP", updated_at=datetime(2026, 5, 9, 12, 0, 0))  # noqa: DTZ001
 
 
 def test_draft_sop_contains_steps():
