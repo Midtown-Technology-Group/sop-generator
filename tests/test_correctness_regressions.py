@@ -28,6 +28,11 @@ def test_event_jsonl_round_trip_preserves_unicode_separators(tmp_path, separator
         "vbscript:msgbox(1)",
         "JaVaScRiPt:alert(1)",
         "java\nscript:alert(1)",
+        " javascript:alert(1)",
+        "   JaVaScRiPt:alert(1)",
+        " data:image/svg+xml,<svg/>",
+        " vbscript:msgbox(1)",
+        " unknown-scheme:payload",
     ],
 )
 def test_render_rejects_active_evidence_sources(source):
@@ -62,6 +67,10 @@ def test_imported_crlf_jsonl_preserves_unicode_and_blank_records(tmp_path):
         "file:///C:/captures/one.png",
         "https://example.test/one.png?a=1&b=2",
         "http://example.test/one.png",
+        " screenshots/one.png",
+        " /tmp/synthetic/one.png",
+        " https://example.test/one.png?a=1&b=2",
+        " file:///C:/captures/one.png",
         'screenshots/one" onerror="alert(1).png',
     ],
 )
@@ -87,3 +96,42 @@ def test_render_safe_sources_are_escaped_and_deterministic(source):
     assert f'src="{escape(source, quote=True)}"' in html
     for text in ("Title", "Summary", "Warning", "Result"):
         assert f"&lt;{text}&gt;" in html
+
+
+@pytest.mark.parametrize(
+    "source",
+    [
+        " javascript:alert(1)",
+        "   unknown-scheme:payload",
+        " https://example.test/one.png",
+        " screenshots/one.png",
+    ],
+)
+def test_evidence_parser_receives_explicitly_space_stripped_source(monkeypatch, source):
+    import sop_generator.render_halo as renderer
+
+    parser = renderer.urlsplit
+    received = []
+
+    def recording_parser(value):
+        received.append(value)
+        return parser(value)
+
+    # Python 3.10.12+ already strips leading spaces inside urlsplit. Record the
+    # argument to require our own normalization on every supported patch level,
+    # without claiming this runtime reproduces the older parser's behavior.
+    monkeypatch.setattr(renderer, "urlsplit", recording_parser)
+    draft = DraftSop(
+        title="Synthetic",
+        summary="Review",
+        steps=[
+            SopStep(order=1, action="Open", evidence=[source]),
+        ],
+    )
+    if source.lstrip(" ").startswith(("javascript:", "unknown-scheme:")):
+        with pytest.raises(ValueError, match="Unsafe evidence"):
+            renderer.render_halo_html(draft)
+    else:
+        assert f'src="{source}"' in renderer.render_halo_html(draft)
+
+    assert received == [source.lstrip(" ")]

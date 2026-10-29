@@ -13,7 +13,8 @@ def _safe_evidence_source(source: str) -> str:
     windows_path = PureWindowsPath(source)
     if (
         not (windows_path.drive and windows_path.is_absolute())
-        and urlsplit(source).scheme.lower() not in {"", "http", "https", "file"}
+        # Do not rely on urlsplit's patch-version-dependent space stripping.
+        and urlsplit(source.lstrip(" ")).scheme.lower() not in {"", "http", "https", "file"}
     ):
         raise ValueError("Unsafe evidence source: unsupported URI scheme")
     return escape(source, quote=True)
