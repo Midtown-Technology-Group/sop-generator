@@ -21,3 +21,12 @@ python -m ruff check src tests
 ```
 
 For local browser verification, follow the localhost companion and unpacked-extension setup in `README.md`; use disposable session data. Distinguish Python test results, interactive capture evidence, and actual downstream Halo publication. Never log Bifrost tokens or captured sensitive field values.
+
+## Secret gate before publication
+
+Before every push and PR creation/update, commit the complete candidate and run
+`python3 scripts/secret_gate.py` (native Windows: `python`). Require exit 0;
+missing tooling/authentication, scan errors and skipped scans block publication.
+Then run the existing repository gates. Repeat after changing outgoing commits.
+See [secret scanning](SECRET-SCANNING.md) for base selection, new branches,
+pre-push input and prerequisites. Preserve GitGuardian App, CI and Gitleaks checks.
