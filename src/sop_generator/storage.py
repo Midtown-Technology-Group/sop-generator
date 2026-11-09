@@ -51,11 +51,9 @@ class SessionStore:
         path = self.session_dir(session_id) / "events.jsonl"
         if not path.exists():
             return []
-        return [
-            CaptureEvent.model_validate_json(line)
-            for line in path.read_text(encoding="utf-8").splitlines()
-            if line
-        ]
+        # JSONL records end at physical newlines, not Unicode text separators.
+        with path.open(encoding="utf-8") as stream:
+            return [CaptureEvent.model_validate_json(line) for line in stream if line.strip()]
 
     def write_screenshot(self, session_id: str, screenshot_base64: str, filename: str) -> Path:
         path = self.session_dir(session_id) / "screenshots"
